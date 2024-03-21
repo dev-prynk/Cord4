@@ -16,3 +16,7 @@ class event_table(models.Model):
     location = models.CharField(max_length=100, default=None)
     organiser = models.ForeignKey(EventOrganiser, on_delete=models.CASCADE, related_name='organiser', default="Priyank")
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name='category', default="Party")
+    
+class Eventcomments(models.Model):
+    title = models.CharField(max_length=100)
+    event_table = models.ForeignKey(event_table, on_delete=models.CASCADE, related_name="event", default=None)

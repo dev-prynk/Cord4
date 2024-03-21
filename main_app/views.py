@@ -3,8 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .serializers import Event_Serializer, EventOrganiser_Serializer, EventCategory_Serializer
-from .models import event_table, EventCategory, EventOrganiser
+from .serializers import Event_Serializer, EventOrganiser_Serializer, EventCategory_Serializer, Eventcomments_Serializer
+from .models import event_table, EventCategory, EventOrganiser, Eventcomments
 from rest_framework.permissions import IsAuthenticated
 from .custom_auth import Custom_Authentication
 from .filters import eventfilterset
@@ -229,3 +229,68 @@ class eventorganiserview(viewsets.ViewSet):
             return Response({"error": "Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class eventcommentview(viewsets.ViewSet):
+    
+    def list(self, request):
+        try:
+            comments = Eventcomments.objects.all()
+            serializer = Eventcomments_Serializer(comments, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def create(self, request):
+        try:
+            serializer = Eventcomments_Serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def retrieve(self, request, pk=None):
+        try:
+            comment = Eventcomments.objects.get(id=pk)
+            serializer = Eventcomments_Serializer(comment)
+            return Response(serializer.data)
+        except ObjectDoesNotExist:
+            return Response({"error": "Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def update(self, request, pk=None):
+        try:
+            comment = Eventcomments.objects.get(id=pk)
+            serializer = Eventcomments_Serializer(comment, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except ObjectDoesNotExist:
+            return Response({"error": "Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def partial_update(self, request, pk=None):
+        try:
+            comment = Eventcomments.objects.get(id=pk)
+            serializer = Eventcomments_Serializer(comment, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except ObjectDoesNotExist:
+            return Response({"error": "Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def destroy(self, request, pk=None):
+        try:
+            comment = Eventcomments.objects.get(id=pk)
+            comment.delete()
+            return Response({"msg": "Deleted"})
+        except ObjectDoesNotExist:
+            return Response({"error": "Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
